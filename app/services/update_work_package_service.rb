@@ -29,9 +29,10 @@
 
 class UpdateWorkPackageService
   attr_accessor :user, :work_package, :permitted_params, :send_notifications
-
+binding.pry
   def initialize(user, work_package, permitted_params, send_notifications=true)
     self.user = user
+    binding.pry
     self.work_package = work_package
     self.permitted_params = permitted_params
     self.send_notifications = send_notifications
@@ -39,7 +40,7 @@ class UpdateWorkPackageService
 
   def update
     configure_update_notification
-
+    binding.pry
     work_package.update_by!(user, effective_params)
   end
 
@@ -59,7 +60,7 @@ class UpdateWorkPackageService
     end
 
     effective_params.merge!(permitted_params) if user.allowed_to?(:edit_work_packages, work_package.project)
-
+binding.pry
     effective_params
   end
 end

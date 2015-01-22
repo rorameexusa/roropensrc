@@ -206,6 +206,7 @@ platforms :mri, :mingw do
 end
 
 platforms :jruby do
+
   gem "jruby-openssl"
 
   group :mysql do
@@ -219,6 +220,7 @@ platforms :jruby do
   group :sqlite do
     gem "activerecord-jdbcsqlite3-adapter"
   end
+
 end
 
 # Load Gemfile.local, Gemfile.plugins and plugins' Gemfiles

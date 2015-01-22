@@ -74,7 +74,6 @@ class UserMailer < ActionMailer::Base
     # The mail interceptor 'RemoveSelfNotificationsInterceptor' assumes the
     # original user to be available. Otherwise, it cannot fulfill its duty.
     User.current = author if User.current != author
-
     @journal = journal
     @issue   = journal.journable.reload
 

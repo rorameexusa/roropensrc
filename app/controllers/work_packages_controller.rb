@@ -136,7 +136,7 @@ class WorkPackagesController < ApplicationController
 
   def create
     call_hook(:controller_work_package_new_before_save, { :params => params, :work_package => work_package })
-
+binding.pry
     WorkPackageObserver.instance.send_notification = send_notifications?
 
     work_package.attach_files(params[:attachments])
@@ -180,11 +180,16 @@ class WorkPackagesController < ApplicationController
     safe_params = permitted_params.update_work_package(:project => project)
 
     update_service = UpdateWorkPackageService.new(current_user, work_package, safe_params, send_notifications?)
-
+binding.pry
     updated = update_service.update
 
-    render_attachment_warning_if_needed(work_package)
 
+    WorkPackageObserver.instance.send_notification = send_notifications?
+
+    work_package.attach_files(params[:attachments])
+
+    render_attachment_warning_if_needed(work_package)
+binding.pry
     if updated
 
       flash[:notice] = l(:notice_successful_update)

@@ -52,9 +52,7 @@ module Api
           options[:conditions] = ["id IN (?) OR identifier IN (?)", ids, identifiers]
         end
 
-        @projects = @base.visible
-                         .includes(:types)
-                         .all(options)
+        @projects = @base.visible.includes(:types).all(options)
 
         @projects_by_id = Hash[@projects.map{|p| [p.id,p]}]
 
