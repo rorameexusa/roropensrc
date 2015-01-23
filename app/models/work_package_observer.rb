@@ -29,15 +29,12 @@
 
 class WorkPackageObserver < ActiveRecord::Observer
   attr_accessor :send_notification
-  binding.pry
+
   def after_create(issue)
-    binding.pry
     if self.send_notification
       recipients = issue.recipients + issue.watcher_recipients
-      binding.pry
       users = User.find_all_by_mails(recipients.uniq)
       users.each do |user|
-        binding.pry
         UserMailer.work_package_added(user, issue).deliver
       end
     end
@@ -48,13 +45,10 @@ class WorkPackageObserver < ActiveRecord::Observer
 
 
   def after_update(issue)
-    binding.pry
     if self.send_notification
       recipients = issue.recipients + issue.watcher_recipients
-      binding.pry
       users = User.find_all_by_mails(recipients.uniq)
       users.each do |user|
-        binding.pry
         UserMailer.work_package_added(user, issue).deliver
       end
     end
@@ -64,7 +58,6 @@ class WorkPackageObserver < ActiveRecord::Observer
 
   # Wrap send_notification so it defaults to true, when it's nil
   def send_notification
-    binding.pry
     return true if @send_notification.nil?
     return @send_notification
   end

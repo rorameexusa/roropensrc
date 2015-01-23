@@ -29,7 +29,6 @@
 
 class WelcomeController < ApplicationController
   def index
-    #binding.pry
     @news     = current_user.latest_news
     @projects = current_user.latest_projects
   end

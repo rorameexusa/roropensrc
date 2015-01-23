@@ -36,7 +36,6 @@ class QueryPolicy < BasePolicy
   private
 
   def cache
-    #binding.pry
     @cache ||= Hash.new do |hash, query|
       hash[query] = {
         show: viewable?(query),

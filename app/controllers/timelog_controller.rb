@@ -52,7 +52,6 @@ class TimelogController < ApplicationController
                 'project' => "#{Project.table_name}.name",
                 'work_package' => 'work_package_id',
                 'hours' => 'hours'
-    binding.pry
     cond = ARCondition.new
     if @issue
       cond << "#{WorkPackage.table_name}.root_id = #{@issue.root_id} AND #{WorkPackage.table_name}.lft >= #{@issue.lft} AND #{WorkPackage.table_name}.rgt <= #{@issue.rgt}"
