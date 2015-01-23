@@ -573,4 +573,12 @@ OpenProject::Application.routes.draw do
   match '/:controller(/:action(/:id))'
   match '/robots' => 'welcome#robots', :defaults => { :format => :txt }
   root :to => 'account#login'
+
+  # start changes for report
+  get "reports/index"
+  get "reports/report_view"
+  get "reports/show"
+  get "reports/all_open_project_users"
+  # end changes for report
+
 end

@@ -1,0 +1,25 @@
+<table class="list" cellspacing="0" cellpadding="5" width="100%">
+  <tr>
+    <th><%=l_or_humanize("Login")%></th>
+    <th><%=l_or_humanize("First Name")%></th>
+    <th><%=l_or_humanize("Last Name")%></th>
+    <th><%=l_or_humanize("Email")%></th>
+    <th><%=l_or_humanize("Emp ID")%></th>
+    <th ><%=l_or_humanize("Report Manager")%></th>
+    <th ><%=l_or_humanize("Team")%></th>
+  </tr>
+  <% for user in @all_users %>
+      <tr>
+        <td><%= link_to "#{user.login}", edit_user_path(user)%></td>
+        <td><%=link_to "#{user.firstname}", edit_user_path(user)%></td>
+        <td><%=link_to "#{user.lastname}", edit_user_path(user)%></td>
+        <td><%=link_to "#{user.mail}", edit_user_path(user)%></td>
+        <td><%=link_to "#{user.custom_field_values.select{|c| c.custom_field_id.to_s == "28"}.first.value}", edit_user_path(user)%></td>
+        <td><%=link_to "#{user.custom_field_values.select{|c| c.custom_field_id.to_s == "27"}.first.value}", edit_user_path(user)%></td>
+        <td><%=link_to "#{user.custom_field_values.select{|c| c.custom_field_id.to_s == "29"}.first.value}", edit_user_path(user)%></td>
+      </tr>
+  <% end %>
+</table>
+<%= other_formats_links do |f| %>
+    <%= f.link_to 'CSV', :url => params %>
+<% end %>

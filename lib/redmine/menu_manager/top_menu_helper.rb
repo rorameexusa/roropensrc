@@ -34,10 +34,21 @@ module Redmine::MenuManager::TopMenuHelper
     content_tag :ul, :id => "account-nav-left", :class => "menu_root account-nav" do
       [render_main_top_menu_nodes,
        render_projects_top_menu_node,
-       render_module_top_menu_node].join.html_safe
+       render_module_top_menu_node,render_report_top_menu_node].join.html_safe
     end
   end
 
+  def render_report_top_menu_node
+    if User.current.admin?
+      heading = link_to l(:label_reports),{ :controller => '/reports',:action => 'show' },
+                        :title => l(:label_reports),:class => "icon4 icon-list-view2"
+      report_render_drop_down_menu_node heading do; end
+    end
+  end
+
+  def report_render_drop_down_menu_node(name)
+    content_tag :li, {} do;name + yield ;end
+  end
   def render_top_menu_right
     content_tag :ul, :id => "account-nav-right", :class => "menu_root account-nav" do
       [ render_help_top_menu_node,

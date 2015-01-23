@@ -1,0 +1,19 @@
+<table class="list" cellspacing="0" cellpadding="5" width="100%">
+  <tr>
+    <th><%=l_or_humanize("Emp ID")%></th>
+    <th ><%=l_or_humanize("Emp Name")%></th>
+    <th ><%=l_or_humanize("Report Manager")%></th>
+    <th ><%=l_or_humanize("Team")%></th>
+  </tr>
+  <% for user in @user %>
+      <tr>
+        <td><%=h user.emp_id%></td>
+        <td><%=h user.emp_name%></td>
+        <td><%=h user.report_manager%></td>
+        <td><%=h user.team%></td>
+      </tr>
+  <% end %>
+</table>
+<%= other_formats_links do |f| %>
+    <%= f.link_to 'CSV', :url => params %>
+<% end %>

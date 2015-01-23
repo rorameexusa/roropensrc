@@ -272,4 +272,169 @@ module TimelogHelper
     end
     deny_access unless User.current.allowed_to?(:view_time_entries, @project, :global => true)
   end
+  ## start Team Member Time Sheet
+  def format_criteria_value_username(criteria, value)
+    if value.blank?
+      l(:label_none)
+    elsif k = @available_criterias[criteria][:klass]
+      obj = k.find_by_id(value.to_i)
+      if obj.is_a?(WorkPackage)
+        obj.visible? ? h("#{obj.type} ##{obj.id}: #{obj.subject}") : h("##{obj.id}")
+      elsif criteria == "member"
+        arry_obj = nil
+        arry_obj = h(format_criteria_value(criteria, value))
+        arry_obj
+      else
+        obj
+      end
+    else
+      format_value(value, @available_criterias[criteria][:format])
+    end
+  end
+  def format_criteria_value_empid(criteria, value)
+    if value.blank?
+      l(:label_none)
+    elsif k = @available_criterias[criteria][:klass]
+      obj = k.find_by_id(value.to_i)
+      if obj.is_a?(WorkPackage)
+        obj.visible? ? h("#{obj.type} ##{obj.id}: #{obj.subject}") : h("##{obj.id}")
+      elsif criteria == "member"
+        arry_obj,c = nil,nil
+        emp_id = CustomValue.where(:customized_id => obj.id ,:custom_field_id => 28).last
+        arry_obj = c if c = emp_id.blank? ?  "" : emp_id.value
+        arry_obj
+      else
+        obj
+      end
+    else
+      format_value(value, @available_criterias[criteria][:format])
+    end
+  end
+  def format_criteria_value_repmgr(criteria, value)
+    if value.blank?
+      l(:label_none)
+    elsif k = @available_criterias[criteria][:klass]
+      obj = k.find_by_id(value.to_i)
+      if obj.is_a?(WorkPackage)
+        obj.visible? ? h("#{obj.type} ##{obj.id}: #{obj.subject}") : h("##{obj.id}")
+      elsif criteria == "member"
+        arry_obj,r = nil,nil
+        rep_mgr = CustomValue.where(:customized_id => obj.id ,:custom_field_id => 27).last
+        arry_obj = r  if r = rep_mgr.blank? ?  "" : rep_mgr.value
+        arry_obj
+      else
+        obj
+      end
+    else
+      format_value(value, @available_criterias[criteria][:format])
+    end
+  end
+  def format_criteria_value_team(criteria, value)
+    if value.blank?
+      l(:label_none)
+    elsif k = @available_criterias[criteria][:klass]
+      obj = k.find_by_id(value.to_i)
+      if obj.is_a?(WorkPackage)
+        obj.visible? ? h("#{obj.type} ##{obj.id}: #{obj.subject}") : h("##{obj.id}")
+      elsif criteria == "member"
+        arry_obj,t = nil,nil
+        team = CustomValue.where(:customized_id => obj.id ,:custom_field_id => 29).last
+        arry_obj = t  if t = team.blank? ?  "" : team.value
+        arry_obj
+      else
+        obj
+      end
+    else
+      format_value(value, @available_criterias[criteria][:format])
+    end
+  end
+  def spent_report_to_csv(criterias, periods, hours)
+    export = CSV.generate(:col_sep => l(:general_csv_separator)) do |csv|
+      # Column headers
+      headers = criterias.collect do |criteria|
+        label = @available_criterias[criteria][:label]
+        label.is_a?(Symbol) ? l(label) : label
+      end
+      if headers.include? "UserName,EmpID,RepMgr,Team"
+        headers.map! { |e| e == "UserName,EmpID,RepMgr,Team" ? ["User Name","Emp ID","Reporting Manager","Team"] : e }.flatten!
+      end
+      headers += periods
+      headers << l(:label_total)
+      csv << headers.collect {|c| to_utf8_for_timelogs(c) }
+      # Content
+      spent_report_criteria_to_csv(csv, criterias, periods, hours)
+      # Total row
+      if criterias.include? "member"
+        row = [ l(:label_total) ] + [''] * ((criterias.size + 3) - 1)
+      else
+        row = [ l(:label_total) ] + [''] * (criterias.size - 1)
+      end
+      total = 0
+      periods.each do |period|
+        sum = sum_hours(select_hours(hours, @columns, period.to_s))
+        total += sum
+        row << (sum > 0 ? "%.2f" % sum : '')
+      end
+      row << "%.2f" %total
+      csv << row
+    end
+    export
+  end
+  def spent_report_criteria_to_csv(csv, criterias, periods, hours, level=0)
+    hours.collect {|h| h[criterias[level]].to_s}.uniq.each do |value|
+      hours_for_value = select_hours(hours, criterias[level], value)
+      next if hours_for_value.empty?
+      row = [''] * level
+      if criterias[level] == "member"
+        row << to_utf8_for_timelogs(format_criteria_value_username(criterias[level], value))
+        row << to_utf8_for_timelogs(format_criteria_value_empid(criterias[level], value))
+        row << to_utf8_for_timelogs(format_criteria_value_repmgr(criterias[level], value))
+        row << to_utf8_for_timelogs(format_criteria_value_team(criterias[level], value))
+      else
+        row << to_utf8_for_timelogs(format_criteria_value(criterias[level], value))
+      end
+      row += [''] * (criterias.length - level - 1)
+      total = 0
+      periods.each do |period|
+        sum = sum_hours(select_hours(hours_for_value, @columns, period.to_s))
+        total += sum
+        row << (sum > 0 ? "%.2f" % sum : '')
+      end
+      row << "%.2f" %total
+      csv << row
+
+      if criterias.length > level + 1
+        report_criteria_to_csv(csv, criterias, periods, hours_for_value, level + 1)
+      end
+    end
+  end
+  def render_menu_report(menu, project=nil)
+    links = []
+    links << ["<li><a href=\"/reports/show\" class=\"icon2 icon-list-view2 overview ellipsis\" title=\"Team Member Time Sheet\">Team Member Time Sheet</a></li>",
+              "<li><a href=\"/reports/report_view\" class=\"icon2 icon-list-view2 overview ellipsis\" title=\"Non Active Status\">Non Active Status</a></li>",
+              "<li><a href=\"/reports/all_open_project_users\" class=\"icon2 icon-list-view2 overview ellipsis\" title=\"All Open Project Users\">All Open Project Users</a></li>"]
+    links.empty? ? nil : content_tag('ul', links.join("\n").html_safe, :class => "menu_root")
+  end
+
+  def report_view_csv(user)
+    export = CSV.generate(:col_sep => l(:general_csv_separator)) do |csv|
+      csv <<  ["User Name","Emp ID","Reporting Manager","Team"]
+      user.collect {|c|
+        csv <<  [c.emp_id,c.emp_name,c.report_manager,c.team]
+      }
+
+    end
+    export
+  end
+  def all_open_project_users_csv(user)
+    export = CSV.generate(:col_sep => l(:general_csv_separator)) do |csv|
+      csv <<  ["Login","First Name","Last Name","Email","Emp ID","Report Manager","Team"]
+      user.collect {|c|
+        csv <<  [c.login,c.firstname,c.lastname,c.mail,c.custom_field_values.select{|c| c.custom_field_id.to_s == "28"}.first.value,c.custom_field_values.select{|c| c.custom_field_id.to_s == "27"}.first.value,c.custom_field_values.select{|c| c.custom_field_id.to_s == "29"}.first.value]
+      }
+
+    end
+    export
+  end
+  ## end  Team Member Time Sheet
 end
