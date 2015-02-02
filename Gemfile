@@ -185,6 +185,9 @@ gem 'representable', git: 'https://github.com/finnlabs/representable'
 gem 'roar',   '~> 0.12.6'
 gem 'reform', '~> 1.0.4', require: false
 
+# Automatic Email sending
+gem 'whenever', :require => false
+
 # Use the commented pure ruby gems, if you have not the needed prerequisites on
 # board to compile the native ones.  Note, that their use is discouraged, since
 # their integration is propbably not that well tested and their are slower in

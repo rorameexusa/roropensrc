@@ -412,7 +412,9 @@ module TimelogHelper
     links = []
     links << ["<li><a href=\"/reports/show\" class=\"icon2 icon-list-view2 overview ellipsis\" title=\"Team Member Time Sheet\">Team Member Time Sheet</a></li>",
               "<li><a href=\"/reports/report_view\" class=\"icon2 icon-list-view2 overview ellipsis\" title=\"Non Active Status\">Non Active Status</a></li>",
-              "<li><a href=\"/reports/all_open_project_users\" class=\"icon2 icon-list-view2 overview ellipsis\" title=\"All Open Project Users\">All Open Project Users</a></li>"]
+              "<li><a href=\"/reports/all_open_project_users\" class=\"icon2 icon-list-view2 overview ellipsis\" title=\"All Open Project Users\">All Open Project Users</a></li>",
+              "<li><a href=\"/reports/admin_tasks_due\" class=\"icon2 icon-list-view2 overview ellipsis\" title=\"Admin Tasks Due\">Admin Tasks Due</a></li>"
+              ]
     links.empty? ? nil : content_tag('ul', links.join("\n").html_safe, :class => "menu_root")
   end
 

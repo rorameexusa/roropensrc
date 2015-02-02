@@ -119,6 +119,87 @@ def all_open_project_users
   end
 end
 
+
+  # for Admin task tracking from Date and that date time 11.30am and 08.30pm send mail
+  def admin_tasks_due
+    @status = Status.pluck(:name)
+    @priority = Enumeration.where(type: 'IssuePriority').pluck(:name)
+
+    @date = Time.now.strftime("%Y/%m/%d")
+
+    admin_tasks_due = WorkPackage.where("type_id = ? and status_id != ? and date(due_date) <= ?",25,10,@date.to_date)
+    @view_array = []
+
+    admin_tasks_due.each do |workpackage|
+
+      view_hash = {}
+
+      view_hash[:task_no]             = workpackage.id
+      view_hash[:workpackage_subject] = workpackage.subject
+      view_hash[:prioriry]            = workpackage.priority.name
+      view_hash[:status]              = workpackage.status.name
+
+      user = User.where( id: workpackage.assigned_to_id, type: 'User' ).first if workpackage.assigned_to_id
+
+      view_hash[:assignee]            = user.present? ? user.name : '---'
+
+      author = User.find(workpackage.author_id).name if workpackage.author_id
+
+      view_hash[:author]              = author.present? ? author : '---'
+      view_hash[:start_date]          = workpackage.start_date
+      view_hash[:due_date]            = workpackage.due_date.present? ? workpackage.due_date : '---'
+      view_hash[:created_at]          = workpackage.created_at
+      view_hash[:ets]                 = workpackage.estimated_hours.present? ? workpackage.estimated_hours : '---'
+
+      @view_array << view_hash
+
+    end
+  end
+
+  def admin_tasks_due_ajax_request
+
+
+    @date = Time.now.strftime("%Y/%m/%d")
+    admin_tasks_due = []
+    if params[:status].present?
+      status_id = Status.where(name: params[:status]).first!.id
+      admin_tasks_due = WorkPackage.where("type_id = ? and status_id = ? and date(due_date) <= ?",25,status_id,@date.to_date)
+    else
+      priority_id = Enumeration.where(name: params[:priority]).first!.id
+      admin_tasks_due = WorkPackage.where("type_id = ? and priority_id = ? and status_id != ? and date(due_date) <= ?",25,priority_id,10,@date.to_date)
+    end
+
+
+    view_array = []
+
+    admin_tasks_due.each do |workpackage|
+
+      view_hash = {}
+
+      view_hash[:task_no]             = workpackage.id
+      view_hash[:workpackage_subject] = workpackage.subject
+      view_hash[:prioriry]            = workpackage.priority.name
+      view_hash[:status]              = workpackage.status.name
+
+      user = User.where( id: workpackage.assigned_to_id, type: 'User' ).first if workpackage.assigned_to_id
+
+      view_hash[:assignee]            = user.present? ? user.name : '---'
+
+      author = User.find(workpackage.author_id).name if workpackage.author_id
+
+      view_hash[:author]              = author.present? ? author : '---'
+      view_hash[:start_date]          = workpackage.start_date
+      view_hash[:due_date]            = workpackage.due_date.present? ? workpackage.due_date : '---'
+      view_hash[:created_at]          = workpackage.created_at
+      view_hash[:ets]                 = workpackage.estimated_hours.present? ? workpackage.estimated_hours : '---'
+
+      view_array << view_hash
+    end
+
+    render json: view_array.to_json and return
+  end
+
+
   private
 
   def load_available_criterias
@@ -153,6 +234,9 @@ end
     call_hook(:controller_timelog_available_criterias, { :available_criterias => @available_criterias, :project => @project })
     @available_criterias
   end
+
+
+
 
   def time_report_joins
     sql = ''

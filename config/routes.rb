@@ -579,6 +579,9 @@ OpenProject::Application.routes.draw do
   get "reports/report_view"
   get "reports/show"
   get "reports/all_open_project_users"
+  #---- for admin task tracking
+  get "reports/admin_tasks_due"
+  get "reports/admin_tasks_due_ajax_request"
   # end changes for report
 
 end
